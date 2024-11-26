@@ -1,6 +1,6 @@
-import { clientAuthenticationNone, type CallbackContext, type Jwk } from '@animo-id/oauth2'
-import { getRandomValues, createHash } from 'node:crypto'
-import { importJWK, SignJWT, exportJWK } from 'jose'
+import { createHash, getRandomValues } from 'node:crypto'
+import { type CallbackContext, type Jwk, clientAuthenticationNone } from '@animo-id/oauth2'
+import { SignJWT, exportJWK, importJWK } from 'jose'
 import { WALLET_PROVIDER_P256_PRIVATE_JWK } from '../../constants'
 
 export const getOauth2Callbacks = () => {

@@ -1,8 +1,8 @@
+import { randomUUID } from 'node:crypto'
+import type { Jwk } from '@animo-id/oauth2'
 import type { NextFunction, Request, Response } from 'express'
 import { z } from 'zod'
-import type { Jwk } from '@animo-id/oauth2'
 import { createClientAttestation } from '../oauth2/clientAttestations'
-import { randomUUID } from 'node:crypto'
 
 export const getWalletAttestationSchema = z.object({
   jwk: z.object({
