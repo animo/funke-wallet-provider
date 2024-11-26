@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   server:
-    image: ghcr.io/animo/funke-wallet-service-provider/server:main
+    image: ghcr.io/animo/funke-wallet-provider/server:main
     deploy:
       placement:
         constraints:
