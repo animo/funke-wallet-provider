@@ -1,0 +1,80 @@
+name: Continuous Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      build:
+        default: true
+        type: boolean
+        required: false
+        description: Build the app before deploying
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  SERVER: server
+
+jobs:
+  build-and-push-image-server:
+    runs-on: ubuntu-latest
+    if: inputs.build == true && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+
+    defaults:
+      run:
+        working-directory: ${{ env.SERVER }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ env.SERVER }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    # Only run on main branch
+    runs-on: ubuntu-latest
+    needs: build-and-push-image-server
+    if: |
+      always() &&
+      (needs.build-and-push-image-server.result == 'success' || needs.build-and-push-image-server.result == 'skipped') &&
+      github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Copy stack file to remote
+        uses: garygrossgarten/github-action-scp@v0.7.3
+        with:
+          local: docker-compose.yml
+          remote: funke-wallet-service-provider/docker-compose.yml
+          host: dashboard.dev.animo.id
+          username: root
+          privateKey: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Docker Swarm via SSH action
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: dashboard.dev.animo.id
+          username: root
+          key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+          script: |
+            docker stack deploy --compose-file funke-wallet-service-provider/docker-compose.yml funke-wallet-service-provider --with-registry-auth

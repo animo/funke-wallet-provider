@@ -1,0 +1,35 @@
+{
+  "name": "funke-wallet-service-provider",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node build/index.js",
+    "style:check": "biome check .",
+    "style:fix": "pnpm style:check --write --unsafe",
+    "test": "ts-node scripts/test.ts"
+  },
+  "dependencies": {
+    "@animo-id/oauth2": "0.2.0-alpha-20241126193353",
+    "@google-cloud/kms": "^4.5.0",
+    "@multiformats/base-x": "^4.0.1",
+    "@peculiar/asn1-schema": "^2.3.13",
+    "@peculiar/asn1-x509": "^2.3.13",
+    "base58": "^2.0.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jose": "^5.9.6",
+    "pg": "^8.13.1",
+    "uuid": "^11.0.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.0",
+    "@types/pg": "^8.11.10",
+    "axios": "^1.7.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}

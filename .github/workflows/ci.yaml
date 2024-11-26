@@ -1,0 +1,29 @@
+name: 'Continous Integration'
+
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+    continous-integration:
+        name: 'Continuous Integration'
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Check formatting
+              run: pnpm style:check
+
+            - name: Build
+              run: pnpm build
